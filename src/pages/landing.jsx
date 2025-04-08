@@ -17,16 +17,16 @@ const LandingPage = () => {
       </h1>
       <p className='text-gray-300 sm:mt-4 text-xs sm:text-xl'>Explore thousands of job listings or find the perfect candidate</p>
     </section>
-    <div>
+    <div className='flex gap-6 justify-center'>
       {/* buttons */}
       <Link to = '/jobs'>
-      <Button>
+      <Button variant='blue' size='xl'>
         Find Jobs
       </Button>
       </Link>
 
       <Link to = '/post-job'>
-      <Button>
+      <Button variant='destructive' size='xl'>
         Post Jobs
       </Button>
       </Link>
