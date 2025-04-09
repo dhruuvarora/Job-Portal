@@ -1,22 +1,17 @@
-// import { getJobs } from '@/api/apiJobs'
-// import { useSession } from '@clerk/clerk-react'
+// import useFetch from '@/hooks/use-fetch'
 // import React, { useEffect } from 'react'
+// import { getJobs } from '@/api/apiJobs'
 
 // const JobListing = () => {
 
-//   const {session} = useSession()
 
-//   const fetchJobs = async() =>{
-//     const supabaseAccessToken = await session.getToken({
-//       template:"supabase",
-//     });
-//     const data = await getJobs(supabaseAccessToken);
-//     console.log(data); 
-//   }
+//   const {fn:fnJobs , data:dataJobs, loading:loadingJobs} = useFetch(getJobs, {})
 
-//   useEffect(() =>{
-//     fetchJobs()
-//   }, []);
+//   console.log(dataJobs)
+
+//   useEffect(()=>{
+//     fnJobs()
+//   } , []);
 //   return (
 //     <div>
 //       JobListing
@@ -27,35 +22,26 @@
 // export default JobListing
 
 
-
-import { getJobs } from '@/api/apiJobs'
-import { useSession } from '@clerk/clerk-react'
-import React, { useEffect } from 'react'
+import useFetch from '@/hooks/use-fetch';
+import React, { useEffect } from 'react';
+import { getJobs } from '@/api/apiJobs';
 
 const JobListing = () => {
-  const { session } = useSession()
-
-  const fetchJobs = async () => {
-    const supabaseAccessToken = await session.getToken({
-      template: "supabase",
-    });
-
-    console.log("Supabase Token:", supabaseAccessToken);
-
-    const data = await getJobs(supabaseAccessToken);
-    console.log("Jobs data:", data);
-  }
+  const { fn: fnJobs, data: dataJobs, loading: loadingJobs, isLoaded } = useFetch(getJobs, {});
 
   useEffect(() => {
-    if (!session) return;
-    fetchJobs();
-  }, [session]);
+    if (isLoaded) {
+      fnJobs();
+    }
+  }, [isLoaded]);
 
-  return (
-    <div>
-      JobListing
-    </div>
-  )
-}
+  useEffect(() => {
+    if (dataJobs) {
+      console.log("Jobs Data: ", dataJobs);
+    }
+  }, [dataJobs]);
 
-export default JobListing
+  return null;
+};
+
+export default JobListing;
