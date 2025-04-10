@@ -21,8 +21,6 @@
 
 // export default JobListing
 
-
-
 import useFetch from '@/hooks/use-fetch';
 import React, { useEffect, useState } from 'react';
 import { getJobs } from '@/api/apiJobs';
@@ -70,13 +68,11 @@ const JobListing = () => {
       {/* Add filter here */}
       {loadingJobs && <BarLoader className='mb-4' width={"100%"} color='#36d7b7' />}
 
-      {!loadingJobs && (
-        <div>
+      {loadingJobs === false && (
+        <div className='mt-8 grid md:grid-cols-2 lg:grid-cols-3 gap-4'>
           {jobs?.length ? (
             jobs.map((job) => {
-              return <JobCard
-              
-              key={job.id} job = {job}/>
+              return <JobCard key={job.id} job = {job}/>
             })
           ) : (
             <div>No Jobs Found</div>
