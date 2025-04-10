@@ -20,6 +20,9 @@
 // }
 
 // export default JobListing
+
+
+
 import useFetch from '@/hooks/use-fetch';
 import React, { useEffect, useState } from 'react';
 import { getJobs } from '@/api/apiJobs';
