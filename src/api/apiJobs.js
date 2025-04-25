@@ -70,8 +70,8 @@ export async function saveJob(token, { alreadySaved }, saveData) {
         .from("saved_jobs")
         .delete()
         .eq("job_id", saveData.job_id)
-        .eq("user_id", saveData.user_id); // Important: Add this condition to ensure we're deleting the correct record
-  
+        .eq("user_id", saveData.user_id); 
+        
       if (deleteError) {
         console.error("Error deleting saved job:", deleteError);
         return null;
@@ -105,8 +105,24 @@ export async function getSingleJob(token,{job_id}) {
         .single();
   
       if (error) {
-        console.error("Error Fetching Companies:", error);
+        console.error("Error Fetching Job:", error);
         return null;
     }
     return data
+}
+
+export async function updateHiringStatus(token,{job_id}, isOpen) {
+  const supabase = await supabaseClient(token);
+
+    const { data, error } = await supabase
+      .from("jobs")
+      .update({isOpen})
+      .eq("id",job_id)
+      .select();
+
+    if (error) {
+      console.error("Error Updating Job:", error);
+      return null;
+  }
+  return data
 }
