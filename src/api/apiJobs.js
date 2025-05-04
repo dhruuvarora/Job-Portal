@@ -227,7 +227,6 @@ export async function saveJob(token, { alreadySaved }, saveData) {
   }
 }
 
-// - job isOpen toggle - (recruiter_id = auth.uid())
 export async function updateHiringStatus(token, { job_id }, isOpen) {
   const supabase = await supabaseClient(token);
   const { data, error } = await supabase

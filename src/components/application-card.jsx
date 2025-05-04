@@ -1,6 +1,10 @@
 import React from 'react'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from './ui/card'
 import { Boxes, BriefcaseBusiness, BriefcaseBusinessIcon, Download, School } from 'lucide-react'
+import useFetch from '@/hooks/use-fetch'
+import { updateApplicationStatus } from '@/api/apiApplication'
+import { BarLoader } from 'react-spinners'
+import { Select, SelectContent, SelectItem, SelectTrigger } from './ui/select'
 
 const ApplicationCard = ({application , isCandidate = false}) => {
 
@@ -11,8 +15,20 @@ const ApplicationCard = ({application , isCandidate = false}) => {
         link.click();
     }
 
+    const {loading : loadingHiringStatus, fn:fnHiringStatus} = useFetch(
+        updateApplicationStatus,
+        {
+            job_id:application.job_id,
+        }
+    );
+
+    const handleStatusChange = (status) =>{
+        fnHiringStatus(status);
+    }
+
   return (
     <Card>
+        {loadingHiringStatus && <BarLoader width={"100%"} color='#36d7b7'/>}
         <CardHeader>
             <CardTitle display  = 'flex justify-between font-bold'>
                 {isCandidate ? `${application?.job?.title} at ${application?.job?.company?.name}` : application?.name}
@@ -37,9 +53,31 @@ const ApplicationCard = ({application , isCandidate = false}) => {
             </div>
             <hr />
         </CardContent>
-        <CardFooter>
+        <CardFooter className="flex justify-between">
             <span>{new Date(application?.created_at).toLocaleString()}</span>
-            
+            {isCandidate?(
+                <span className='capitalize font-bold'>Status: {application?.status}</span>
+            ):(
+                <Select onValueChange={handleStatusChange} defaultValue={application?.status}>
+          <SelectTrigger className={"w-52 "}>
+            <SelectValue placeholder={"Application Status "}/>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value = "applied">
+              Applied
+            </SelectItem>
+            <SelectItem value = "interviewing">
+              Interviewing
+            </SelectItem>
+            <SelectItem value = "hired">
+              Hired
+            </SelectItem>
+            <SelectItem value = "rejected">
+              Rejected
+            </SelectItem>
+          </SelectContent>
+        </Select>
+            )}
         </CardFooter>
     </Card>
   )
