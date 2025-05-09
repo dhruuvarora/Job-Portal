@@ -5,11 +5,10 @@ const useFetch = (cb, options = {}) => {
   const [data, setData] = useState(undefined);
   const [loading, setLoading] = useState(null);
   const [error, setError] = useState(null);
-  const { session, isLoaded } = useSession();
+
+  const { session } = useSession();
 
   const fn = async (...args) => {
-    if (!isLoaded || !session) return; 
-
     setLoading(true);
     setError(null);
 
@@ -17,7 +16,6 @@ const useFetch = (cb, options = {}) => {
       const supabaseAccessToken = await session.getToken({
         template: "supabase",
       });
-
       const response = await cb(supabaseAccessToken, options, ...args);
       setData(response);
       setError(null);
@@ -28,7 +26,7 @@ const useFetch = (cb, options = {}) => {
     }
   };
 
-  return { fn, data, loading, error, isLoaded }; 
+  return { data, loading, error, fn };
 };
 
 export default useFetch;
