@@ -19,9 +19,11 @@ const JobCard = ({
   savedInit = false,
   onJobAction = () => {},
   isMyJob = false,
+  savedJobId = null, // This prop is specifically for the SavedJobs page
 }) => {
   const [saved, setSaved] = useState(savedInit);
-
+  const [isProcessing, setIsProcessing] = useState(false);
+  
   const { user } = useUser();
 
   const { loading: loadingDeleteJob, fn: fnDeleteJob } = useFetch(deleteJob, {
@@ -30,26 +32,70 @@ const JobCard = ({
 
   const {
     loading: loadingSavedJob,
-    data: savedJob,
     fn: fnSavedJob,
   } = useFetch(saveJob);
 
+  // Update saved state when savedInit prop changes
+  useEffect(() => {
+    setSaved(savedInit);
+  }, [savedInit]);
+
   const handleSaveJob = async () => {
-    await fnSavedJob({
-      user_id: user.id,
-      job_id: job.id,
-    });
-    onJobAction();
+    // Prevent multiple clicks while processing
+    if (isProcessing || loadingSavedJob) return;
+    
+    setIsProcessing(true);
+    
+    try {
+      console.log("Current saved state:", saved);
+      console.log("SavedJobId if available:", savedJobId);
+      
+      if (savedJobId) {
+        // We're on the Saved Jobs page, use direct deletion by savedJobId
+        console.log("Using savedJobId for deletion:", savedJobId);
+        
+        // Call API with the savedJobId
+        await fnSavedJob(
+          {
+            directDeleteId: savedJobId, // A new parameter specifically for direct deletion
+          },
+          {
+            user_id: user.id,
+            job_id: job.id,
+          }
+        );
+      } else {
+        // We're on the main page, use normal toggle
+        console.log("Using normal toggle with alreadySaved:", saved);
+        
+        await fnSavedJob(
+          {
+            alreadySaved: saved,
+            job_id: job.id,
+          },
+          {
+            user_id: user.id,
+            job_id: job.id,
+          }
+        );
+      }
+      
+      // Toggle saved state locally
+      setSaved(!saved);
+      
+      // Call callback to refresh parent
+      onJobAction();
+    } catch (error) {
+      console.error("Error toggling job save status:", error);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleDeleteJob = async () => {
     await fnDeleteJob();
     onJobAction();
   };
-
-  useEffect(() => {
-    if (savedJob !== undefined) setSaved(savedJob?.length > 0);
-  }, [savedJob]);
 
   return (
     <Card className="flex flex-col">
@@ -77,7 +123,9 @@ const JobCard = ({
           </div>
         </div>
         <hr />
-        {job.description.substring(0, job.description.indexOf("."))}.
+        {job.description && typeof job.description === 'string' 
+          ? job.description.substring(0, job.description.indexOf(".") > 0 ? job.description.indexOf(".") : 50) + "."
+          : "No description available."}
       </CardContent>
       <CardFooter className="flex gap-2">
         <Link to={`/job/${job.id}`} className="flex-1">
@@ -90,7 +138,7 @@ const JobCard = ({
             variant="outline"
             className="w-15"
             onClick={handleSaveJob}
-            disabled={loadingSavedJob}
+            disabled={loadingSavedJob || isProcessing}
           >
             {saved ? (
               <Heart size={20} fill="red" stroke="red" />
